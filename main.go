@@ -74,7 +74,8 @@ func main() {
 func postToBotDev(ctx context.Context, body io.Reader) (chat.Message, error) {
 	msg, err := postToRoom(ctx, "https://us-central1-uplifted-elixir-203119.cloudfunctions.net/helpBot", body)
 	if err != nil {
-		log.Infof(ctx, "An Error Occurred: %+v \nMessage: &+v", err, msg)
+		log.Infof(ctx, "An Error Occurred: %+v", err)
+		log.Infof(ctx, "Message: %+v", msg)
 		return msg, err
 	}
 	return msg, nil
@@ -84,7 +85,7 @@ func postToBotDevelopment(ctx context.Context, body io.Reader) (chat.Message, er
 	msg, err := postToRoom(ctx, "https://bitmoji-bot-dot-uplifted-elixir-203119.appspot.com", body)
 	if err != nil {
 		log.Infof(ctx, "An Error Occurred: %+v", err)
-		log.Infof(ctx, "Message: &+v", msg)
+		log.Infof(ctx, "Message: %+v", msg)
 		return msg, err
 	}
 	return msg, nil
@@ -101,6 +102,10 @@ func postToRoom(ctx context.Context, url string, body io.Reader) (chat.Message, 
 	}
 	defer resp.Body.Close()
 	b, err := ioutil.ReadAll(resp.Body)
+	log.Infof(ctx, "Byte to String %v", string(b))
+	if err != nil {
+		return br, err
+	}
 	err = json.Unmarshal(b, &br)
 	if err != nil {
 		return br, err
