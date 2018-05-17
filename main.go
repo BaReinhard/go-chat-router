@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -15,17 +14,18 @@ import (
 	"google.golang.org/appengine/urlfetch"
 )
 
-// Message Object in GChat Payload
+// Message Object in Hangouts Chat Payload
 type Message struct {
 	Text string `json:"text"`
 }
 
-// Payload send from GChat
+// Payload sent from Hangouts Chat
 type Payload struct {
 	Message Message `json:"message"`
 	Space   Space   `json:"space"`
 }
 
+// Space Struct for Unmarshalling
 type Space struct {
 	Name string `json:"name"`
 }
@@ -34,8 +34,10 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// Set Headers
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
+	// Set Context to appengine context
 	ctx := appengine.NewContext(r)
 
+	// Read Body into Bytes Array
 	b, e := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if e != nil {
@@ -43,20 +45,26 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Infof(ctx, "Body: %+v", string(b))
 	var message Payload
+	// Unmarshall Byte Array (b) into a Message Struct (message) to interact easier
 	json.Unmarshal(b, &message)
 
-	if message.Space.Name == "spaces/AAAA0c_TyMI" {
+	switch message.Space.Name {
+	case "spaces/AAAA0c_TyMI":
 		log.Infof(ctx, "Sending to Bot Dev Room")
 		msg, err := postToBotDev(ctx, bytes.NewReader(b))
 		if err != nil {
+			// Log Error and Return An Error Message in a Chat Friendly Format
+			log.Errorf(ctx, "An Error Occurred: ", err)
 			json.NewEncoder(w).Encode(chat.Message{Text: "An error has occurred"})
 		}
 		log.Infof(ctx, "Returned from Bot Dev Room: %+v", msg)
 		json.NewEncoder(w).Encode(msg)
-	} else {
+	default:
 		log.Infof(ctx, "Sending to Bot Development")
 		msg, err := postToBotDevelopment(ctx, bytes.NewReader(b))
 		if err != nil {
+			// Log Error and Return An Error Message in a Chat Friendly Format
+			log.Errorf(ctx, "An Error Occurred: ", err)
 			json.NewEncoder(w).Encode(chat.Message{Text: "An error has occurred"})
 		}
 		log.Infof(ctx, "Returned from Bot Development: %+v", msg)
@@ -67,10 +75,12 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", indexHandler)
-	fmt.Printf("Testing")
 	appengine.Main() // Starts the server to receive requests
 }
 
+// Switch Case Space : spaces/AAAA0c_TyMI . Sends to JavaScript Cloud Function
+// Setup as a beginning codebase for beginners
+// Repo Here: https://github.com/BaReinhard/help-bot
 func postToBotDev(ctx context.Context, body io.Reader) (chat.Message, error) {
 	msg, err := postToRoom(ctx, "https://us-central1-uplifted-elixir-203119.cloudfunctions.net/helpBot", body)
 	if err != nil {
@@ -81,6 +91,8 @@ func postToBotDev(ctx context.Context, body io.Reader) (chat.Message, error) {
 	return msg, nil
 
 }
+
+// Default Switch Function, sends to Go Bot
 func postToBotDevelopment(ctx context.Context, body io.Reader) (chat.Message, error) {
 	msg, err := postToRoom(ctx, "https://bitmoji-bot-dot-uplifted-elixir-203119.appspot.com", body)
 	if err != nil {
@@ -91,9 +103,11 @@ func postToBotDevelopment(ctx context.Context, body io.Reader) (chat.Message, er
 	return msg, nil
 }
 
+// Helper Function to cut down on code redundancy
 func postToRoom(ctx context.Context, url string, body io.Reader) (chat.Message, error) {
 	var br chat.Message
 
+	// Use urlfetch in App Engine
 	client := urlfetch.Client(ctx)
 	resp, err := client.Post(url, "application/json; charset=utf-8", body)
 	if err != nil {
