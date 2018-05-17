@@ -50,8 +50,12 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch message.Space.Name {
 	case "spaces/AAAA0c_TyMI":
+		// Switch Case Space : spaces/AAAA0c_TyMI . Sends to JavaScript Cloud Function
+		// Setup as a beginning codebase for beginners
+		// Repo Here: https://github.com/BaReinhard/help-bot
+
 		log.Infof(ctx, "Sending to Bot Dev Room")
-		msg, err := postToBotDev(ctx, bytes.NewReader(b))
+		msg, err := postToRoom(ctx, "https://us-central1-uplifted-elixir-203119.cloudfunctions.net/helpBot", bytes.NewReader(b))
 		if err != nil {
 			// Log Error and Return An Error Message in a Chat Friendly Format
 			log.Errorf(ctx, "An Error Occurred: ", err)
@@ -60,8 +64,10 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		log.Infof(ctx, "Returned from Bot Dev Room: %+v", msg)
 		json.NewEncoder(w).Encode(msg)
 	default:
+		// Default Switch Function, sends to Go Bot
+
 		log.Infof(ctx, "Sending to Bot Development")
-		msg, err := postToBotDevelopment(ctx, bytes.NewReader(b))
+		msg, err := postToRoom(ctx, "https://bitmoji-bot-dot-uplifted-elixir-203119.appspot.com", bytes.NewReader(b))
 		if err != nil {
 			// Log Error and Return An Error Message in a Chat Friendly Format
 			log.Errorf(ctx, "An Error Occurred: ", err)
@@ -76,31 +82,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	http.HandleFunc("/", indexHandler)
 	appengine.Main() // Starts the server to receive requests
-}
-
-// Switch Case Space : spaces/AAAA0c_TyMI . Sends to JavaScript Cloud Function
-// Setup as a beginning codebase for beginners
-// Repo Here: https://github.com/BaReinhard/help-bot
-func postToBotDev(ctx context.Context, body io.Reader) (chat.Message, error) {
-	msg, err := postToRoom(ctx, "https://us-central1-uplifted-elixir-203119.cloudfunctions.net/helpBot", body)
-	if err != nil {
-		log.Infof(ctx, "An Error Occurred: %+v", err)
-		log.Infof(ctx, "Message: %+v", msg)
-		return msg, err
-	}
-	return msg, nil
-
-}
-
-// Default Switch Function, sends to Go Bot
-func postToBotDevelopment(ctx context.Context, body io.Reader) (chat.Message, error) {
-	msg, err := postToRoom(ctx, "https://bitmoji-bot-dot-uplifted-elixir-203119.appspot.com", body)
-	if err != nil {
-		log.Infof(ctx, "An Error Occurred: %+v", err)
-		log.Infof(ctx, "Message: %+v", msg)
-		return msg, err
-	}
-	return msg, nil
 }
 
 // Helper Function to cut down on code redundancy
