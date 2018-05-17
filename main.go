@@ -15,18 +15,6 @@ import (
 	"google.golang.org/appengine/urlfetch"
 )
 
-type BitmojiObject struct {
-	TemplateID string   `json:"template_id"`
-	ComicID    string   `json:"comic_id"`
-	Src        string   `json:"src"`
-	Supertags  []string `json:"supertags"`
-	Tags       []string `json:"tags"`
-	Categories []string `json:"categories"`
-}
-type BitmojiApiObject struct {
-	Imoji json.RawMessage `json:"imoji"`
-}
-
 // Message Object in GChat Payload
 type Message struct {
 	Text string `json:"text"`
@@ -41,9 +29,6 @@ type Payload struct {
 type Space struct {
 	Name string `json:"name"`
 }
-
-var imoji []BitmojiObject
-var err error
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// Set Headers
@@ -98,7 +83,8 @@ func postToBotDev(ctx context.Context, body io.Reader) (chat.Message, error) {
 func postToBotDevelopment(ctx context.Context, body io.Reader) (chat.Message, error) {
 	msg, err := postToRoom(ctx, "https://bitmoji-bot-dot-uplifted-elixir-203119.appspot.com", body)
 	if err != nil {
-		log.Infof(ctx, "An Error Occurred: %+v \nMessage: &+v", err, msg)
+		log.Infof(ctx, "An Error Occurred: %+v", err)
+		log.Infof(ctx, "Message: &+v", msg)
 		return msg, err
 	}
 	return msg, nil
@@ -108,8 +94,9 @@ func postToRoom(ctx context.Context, url string, body io.Reader) (chat.Message, 
 	var br chat.Message
 
 	client := urlfetch.Client(ctx)
-	resp, err := client.Post(url, "application/json", body)
+	resp, err := client.Post(url, "application/json; charset=utf-8", body)
 	if err != nil {
+		log.Infof(ctx, "Error In Post to Room %+v", err)
 		return br, err
 	}
 	defer resp.Body.Close()
