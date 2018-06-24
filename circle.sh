@@ -17,7 +17,7 @@ else
     exit 0
 fi
 # Comment Next Two Lines once configuration is completed
-echo "Implementing configurations for CI/D"
+echo "Implementing configurations WIP"
 exit 0
 
 
