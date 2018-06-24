@@ -106,6 +106,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 			log.Errorf(ctx, "An Error Occurred: ", err)
 			json.NewEncoder(w).Encode(chat.Message{Text: "An error has occurred"})
 		}
+
 		log.Infof(ctx, "Returned from Spotify Room: %+v", msg)
 		json.NewEncoder(w).Encode(msg)
 	// case "spaces/AAAA3dgDXKM":
