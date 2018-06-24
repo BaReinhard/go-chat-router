@@ -108,9 +108,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Infof(ctx, "Returned from Spotify Room: %+v", msg)
 		json.NewEncoder(w).Encode(msg)
-	case "spaces/AAAA3dgDXKM":
-		log.Infof(ctx, "Sending to Hubot Room")
-		msg, err := postToRoom(ctx, "https://")
+	// case "spaces/AAAA3dgDXKM":
+	// 	log.Infof(ctx, "Sending to Hubot Room")
+	// 	msg, err := postToRoom(ctx, "https://")
 	default:
 		// Default Switch Function, sends to Go Bot
 
