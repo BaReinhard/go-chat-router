@@ -6,6 +6,7 @@ then
     DEPLOYMENT_TYPE="Production"
     PROJECT='heph-dev-core'
 elif [ "$CIRCLE_BRANCH" = "development" ];
+then
     echo "Starting Development Deployment"
     DEPLOYMENT_TYPE="Development"
     PROJECT='uplifted-elixir-203119'
