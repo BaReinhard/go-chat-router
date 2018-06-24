@@ -98,7 +98,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Infof(ctx, "Returned from Tacos Room: %+v", msg)
 		json.NewEncoder(w).Encode(msg)
-
 	case "spaces/AAAAyXeUgAM", "spaces/AAAALPK7rTg":
 		log.Infof(ctx, "Sending to Spotify Room")
 		msg, err := postToRoom(ctx, "https://spotify-chat-dot-uplifted-elixir-203119.appspot.com/bot", bytes.NewReader(b))
@@ -109,7 +108,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Infof(ctx, "Returned from Spotify Room: %+v", msg)
 		json.NewEncoder(w).Encode(msg)
-
+	case "spaces/AAAA3dgDXKM":
+		log.Infof(ctx, "Sending to Hubot Room")
+		msg, err := postToRoom(ctx, "https://")
 	default:
 		// Default Switch Function, sends to Go Bot
 
