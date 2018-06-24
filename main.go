@@ -14,15 +14,29 @@ import (
 	"google.golang.org/appengine/urlfetch"
 )
 
-// Message Object in Hangouts Chat Payload
 type Message struct {
-	Text string `json:"text"`
+	Text        string       `json:"text"`
+	User        UserObject   `json:"sender"`
+	Annotations []Annotation `json:"annotations"`
+}
+type Annotation struct {
+	Usermention UserMention `json:"userMention"`
+}
+type UserMention struct {
+	User UserObject `json:"user"`
+}
+type UserObject struct {
+	Name        string `json:"name"`
+	DisplayName string `json:"displayName"`
+	Type        string `json:"type"`
 }
 
-// Payload sent from Hangouts Chat
+// Payload send from GChat
 type Payload struct {
-	Message Message `json:"message"`
-	Space   Space   `json:"space"`
+	Message Message   `json:"message"`
+	User    chat.User `json:"user"`
+	Space   Space     `json:"space"`
+	Type    string    `json:"type"`
 }
 
 // Space Struct for Unmarshalling
@@ -63,6 +77,41 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Infof(ctx, "Returned from Bot Dev Room: %+v", msg)
 		json.NewEncoder(w).Encode(msg)
+	case "spaces/AAAAifGFyYk":
+		log.Infof(ctx, "Sending to Python Room")
+		msg, err := postToRoom(ctx, "https://python-bot-dot-uplifted-elixir-203119.appspot.com", bytes.NewReader(b))
+		if err != nil {
+			// Log Error and Return An Error Message in a Chat Friendly Format
+			log.Errorf(ctx, "An Error Occurred: ", err)
+			json.NewEncoder(w).Encode(chat.Message{Text: "An error has occurred"})
+		}
+		log.Infof(ctx, "Returned from Bot Dev Room: %+v", msg)
+		json.NewEncoder(w).Encode(msg)
+
+	case "spaces/AAAAcZ1PlGk":
+		log.Infof(ctx, "Sending to Tacos Room")
+		msg, err := postToRoom(ctx, "https://basic-taco-bot-dot-uplifted-elixir-203119.appspot.com", bytes.NewReader(b))
+		if err != nil {
+			// Log Error and Return An Error Message in a Chat Friendly Format
+			log.Errorf(ctx, "An Error Occurred: ", err)
+			json.NewEncoder(w).Encode(chat.Message{Text: "An error has occurred"})
+		}
+		log.Infof(ctx, "Returned from Tacos Room: %+v", msg)
+		json.NewEncoder(w).Encode(msg)
+	case "spaces/AAAAyXeUgAM", "spaces/AAAALPK7rTg":
+		log.Infof(ctx, "Sending to Spotify Room")
+		msg, err := postToRoom(ctx, "https://spotify-chat-dot-uplifted-elixir-203119.appspot.com/bot", bytes.NewReader(b))
+		if err != nil {
+			// Log Error and Return An Error Message in a Chat Friendly Format
+			log.Errorf(ctx, "An Error Occurred: ", err)
+			json.NewEncoder(w).Encode(chat.Message{Text: "An error has occurred"})
+		}
+
+		log.Infof(ctx, "Returned from Spotify Room: %+v", msg)
+		json.NewEncoder(w).Encode(msg)
+	// case "spaces/AAAA3dgDXKM":
+	// 	log.Infof(ctx, "Sending to Hubot Room")
+	// 	msg, err := postToRoom(ctx, "https://")
 	default:
 		// Default Switch Function, sends to Go Bot
 
